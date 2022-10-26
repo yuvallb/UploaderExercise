@@ -31,8 +31,8 @@ class JobRequest(BaseModel):
     Regex: Union[str, None] = None
 
 # upload files in the foreground, the request will stay open until upload is finished
-@uploader.post("/job")
-async def startJob(job: JobRequest):
+@uploader.post("/upload")
+async def upload_folder(job: JobRequest):
     result = app.startJob(Job(
         job_id=job.Upload_id,
         source_basedir=job.Source_folder,
@@ -42,8 +42,8 @@ async def startJob(job: JobRequest):
     return result
 
 # upload files in the background, the request will return with 202 response
-@uploader.post("/background-job", status_code=202)
-async def startBackgroundJob(job: JobRequest, background_tasks: BackgroundTasks):
+@uploader.post("/background-upload", status_code=202)
+async def upload_folder_in_background(job: JobRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(app.startJob, Job(
         job_id=job.Upload_id,
         source_basedir=job.Source_folder,
@@ -54,8 +54,8 @@ async def startBackgroundJob(job: JobRequest, background_tasks: BackgroundTasks)
 
 
 # upload files in the background, and continue to monitor for changes, the request will return with 202 response
-@uploader.post("/ongoing-background-job", status_code=202)
-async def startOngoingBackgroundMonitorJob(job: JobRequest, background_tasks: BackgroundTasks):
+@uploader.post("/ongoing-background-upload", status_code=202)
+async def ongoing_upload_folder_in_background(job: JobRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(app.startOngoingJob, Job(
         job_id=job.Upload_id,
         source_basedir=job.Source_folder,
@@ -67,7 +67,7 @@ async def startOngoingBackgroundMonitorJob(job: JobRequest, background_tasks: Ba
 
 # get upload status
 @uploader.get("/job/{job_id}")
-async def getJob(job_id: str):
+async def get_upload_information(job_id: str):
     job = app.getJob(job_id)
     if job == None:
         raise HTTPException(status_code=404, detail="Job not found")
