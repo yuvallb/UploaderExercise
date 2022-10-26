@@ -9,12 +9,12 @@ from models.job import Job
 
 
 class APISettings(BaseSettings):
-    db_workdir: str
-    target_workdir: str
+    db_workdir: str = ""
+    target_setting: str = ""
 
 
 settings = APISettings()
-app = UploaderApp(AppConfig(dbWorkdir=settings.db_workdir, targetWorkdir= settings.target_workdir))
+app = UploaderApp(AppConfig(dbWorkdir=settings.db_workdir, targetSetting=settings.target_setting))
 uploader = FastAPI()
 
 class JobRequest(BaseModel):

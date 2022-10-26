@@ -14,6 +14,6 @@ class Scanner:
             if fileNameFilter == None or fileNameFilter.search(tocopy.name):
                 self._db.addTask(job.job_id, Task(
                     source=str(tocopy),
-                    target_name=tocopy.relative_to(job.source_basedir),
+                    target_name=str(tocopy.relative_to(job.source_basedir)),
                     target_bucket=job.target_bucket
                 ))

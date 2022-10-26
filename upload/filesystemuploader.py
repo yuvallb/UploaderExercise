@@ -7,18 +7,17 @@ import logging
 
 class FileSystemUploader(IUploader):
     
-    def __init__(self, workdir: str, db: IDatabase):
-        self._db = db
+    def __init__(self, workdir: str):
         self._workdir = workdir
 
-    def run(self, job_id:str, task: Task):
+    def run(self, task: Task) -> bool:
         target = path.join(self._workdir, task.target_bucket, task.target_name)
-        logging.debug("Lcopying from {} to {}".format(task.source, target))
+        logging.debug("copying from {} to {}".format(task.source, target))
         try:
             copyfile(task.source, target)
         except FileNotFoundError as e:
             # try creating parent directories
             makedirs(path.dirname(target))
             copyfile(task.source, target)
-        self._db.setTaskDone(job_id, task.source)
+        return True
         

@@ -6,11 +6,14 @@ from scanner import Scanner
 from upload.filesystemuploader import FileSystemUploader
 import logging
 
+from upload.iuploader import IUploader
+from upload.s3uploader import S3Uploader
+
 @dataclass
 class AppConfig:
     dbWorkdir: str = ""
-    targetWorkdir: str = ""
-    # TBD for connection strings, settings etc.
+    targetSetting: str = "" # "s3" for using the s3 uploader or a local folder for using the filesystem uploader
+
 
 class UploaderApp:
 
@@ -21,12 +24,25 @@ class UploaderApp:
     def startJob(self, job: Job):
         logging.debug("called startJob with {}".format(job))
         creation = self._db.startJob(job)
-        if creation == JobCreation.CREATED:
-            scanner = Scanner(self._db)
-            scanner.run(job)
-        uploader = FileSystemUploader(self._config.targetWorkdir, self._db)
+        if creation == JobCreation.EXISTED:
+            raise Exception("job already exists")
+
+        scanner = Scanner(self._db)
+        scanner.run(job)
+        uploader = self._uploaderFactory()
         for task in self._db.yieldPendingTasks(job.job_id):
-            uploader.run(job.job_id, task)
+            if uploader.run(task):
+                self._db.setTaskDone(job.job_id, task.source)
+        self._db.finishJob(job.job_id)
+
+    def resumeJobUploads(self, job_id: str):
+        job = self._db.getJob(job_id)
+        if job == None:
+            raise Exception("job does not exist")
+
+        uploader = self._uploaderFactory()
+        for task in self._db.yieldPendingTasks(job.job_id):
+            uploader.run(task)
         self._db.finishJob(job.job_id)
 
     def getJob(self, job_id: str) -> Job:
@@ -35,3 +51,11 @@ class UploaderApp:
     def recoverJobs(self):
         for job in self._db.getActiveJobs():
             self.startJob(job)
+
+
+    def _uploaderFactory(self) -> IUploader:
+        if self._config.targetSetting.lower() == "s3":
+            return S3Uploader()
+        if len(self._config.targetSetting)>0:
+            return FileSystemUploader(self._config.targetSetting)
+        raise Exception("No target configured")
