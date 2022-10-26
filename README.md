@@ -38,7 +38,7 @@ Components:
 * `upload`: uploaders inerface and implementations
 
 Considerations:
-* Full seperation beween source scanner and file uploader.
+* Full separation between source scanner and file uploader.
 * Upload tasks created by the scanner do not have order and priority.
 * Upload tasks should be overwritten if a new version is detected before the previous version was uploaded.
 * A file with the same name, size and modification date is considered unchanged - the scanner does not calculate file checksums.
