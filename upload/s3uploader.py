@@ -1,9 +1,10 @@
-from database.idatabase import IDatabase
-from models.task import Task
-from upload.iuploader import IUploader
-from botocore.exceptions import ClientError
 import boto3
 import logging
+import hashlib
+import base64
+
+from models.task import Task
+from upload.iuploader import IUploader
 
 class S3Uploader(IUploader):
     def __init__(self):
@@ -12,11 +13,19 @@ class S3Uploader(IUploader):
 
     def run(self, task: Task) -> bool:
         try:
-            self._client.upload_file(task.source, task.target_bucket, task.target_name)
+            with open(task.source) as f:
+                data = f.read()
+                md = hashlib.md5(data.encode('utf-8')).digest()
+                contents_md5 = base64.b64encode(md).decode('utf-8')
+            self._client.put_object(
+                Bucket=task.target_bucket,
+                Key=task.target_name,
+                Body=data,
+                ContentMD5=contents_md5
+            )
         except Exception as e:
             logging.error(e)
             return False
         return True
         
-    
     

@@ -14,6 +14,12 @@ class AppConfig:
     dbWorkdir: str = ""
     targetSetting: str = "" # "s3" for using the s3 uploader or a local folder for using the filesystem uploader
 
+@dataclass
+class RunJobResult:
+    found: int = 0
+    uploaded: int = 0
+    
+
 
 class UploaderApp:
 
@@ -21,19 +27,23 @@ class UploaderApp:
         self._db: IDatabase = InMemoryDatabase()
         self._config = config
 
-    def startJob(self, job: Job):
+    def startJob(self, job: Job) -> RunJobResult:
         logging.debug("called startJob with {}".format(job))
         creation = self._db.startJob(job)
         if creation == JobCreation.EXISTED:
             raise Exception("job already exists")
 
+        result = RunJobResult()
         scanner = Scanner(self._db)
         scanner.run(job)
         uploader = self._uploaderFactory()
         for task in self._db.yieldPendingTasks(job.job_id):
+            result.found += 1
             if uploader.run(task):
+                result.uploaded += 1
                 self._db.setTaskDone(job.job_id, task.source)
         self._db.finishJob(job.job_id)
+        return result
 
     def resumeJobUploads(self, job_id: str):
         job = self._db.getJob(job_id)

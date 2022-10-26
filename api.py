@@ -18,20 +18,20 @@ app = UploaderApp(AppConfig(dbWorkdir=settings.db_workdir, targetSetting=setting
 uploader = FastAPI()
 
 class JobRequest(BaseModel):
-    jobId: str
-    sourceBasedir: str
-    targetBucket: str
-    regex: Union[str, None] = None
+    Upload_id: str
+    Source_folder: str
+    Destination_bucket: str
+    Regex: Union[str, None] = None
 
 @uploader.post("/job")
 async def startJob(job: JobRequest):
-    app.startJob(Job(
-        job_id=job.jobId,
-        source_basedir=job.sourceBasedir,
-        target_bucket=job.targetBucket,
-        regex=job.regex
+    result = app.startJob(Job(
+        job_id=job.Upload_id,
+        source_basedir=job.Source_folder,
+        target_bucket=job.Destination_bucket,
+        regex=job.Regex
     ))
-    return {"message": "creating job"}
+    return result
 
 @uploader.get("/job/{job_id}")
 async def getJob(job_id: str):
