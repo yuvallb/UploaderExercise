@@ -24,7 +24,7 @@ settings = APISettings()
 app = UploaderApp(AppConfig(dbWorkdir=settings.db_workdir, targetSetting=settings.target_setting))
 uploader = FastAPI()
 
-class JobRequest(BaseModel):
+class UploadJobRequest(BaseModel):
     Upload_id: str
     Source_folder: str
     Destination_bucket: str
@@ -32,7 +32,7 @@ class JobRequest(BaseModel):
 
 # upload files in the foreground, the request will stay open until upload is finished
 @uploader.post("/upload")
-async def upload_folder(job: JobRequest):
+async def upload_folder(job: UploadJobRequest):
     result = app.startJob(Job(
         job_id=job.Upload_id,
         source_basedir=job.Source_folder,
@@ -43,7 +43,7 @@ async def upload_folder(job: JobRequest):
 
 # upload files in the background, the request will return with 202 response
 @uploader.post("/background-upload", status_code=202)
-async def upload_folder_in_background(job: JobRequest, background_tasks: BackgroundTasks):
+async def upload_folder_in_background(job: UploadJobRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(app.startJob, Job(
         job_id=job.Upload_id,
         source_basedir=job.Source_folder,
@@ -55,7 +55,7 @@ async def upload_folder_in_background(job: JobRequest, background_tasks: Backgro
 
 # upload files in the background, and continue to monitor for changes, the request will return with 202 response
 @uploader.post("/ongoing-background-upload", status_code=202)
-async def ongoing_upload_folder_in_background(job: JobRequest, background_tasks: BackgroundTasks):
+async def ongoing_upload_folder_in_background(job: UploadJobRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(app.startOngoingJob, Job(
         job_id=job.Upload_id,
         source_basedir=job.Source_folder,
@@ -66,9 +66,9 @@ async def ongoing_upload_folder_in_background(job: JobRequest, background_tasks:
 
 
 # get upload status
-@uploader.get("/job/{job_id}")
-async def get_upload_information(job_id: str):
-    job = app.getJob(job_id)
+@uploader.get("/upload/{Upload_id}")
+async def get_upload_information(Upload_id: str):
+    job = app.getJob(Upload_id)
     if job == None:
         raise HTTPException(status_code=404, detail="Job not found")
     return job
