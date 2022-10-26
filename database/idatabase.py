@@ -1,8 +1,12 @@
 from typing import Iterator
+
 from models.job import Job, JobCreation
 from models.task import Task
 
+#
 # interface for the data persistance requirements
+#
+
 class IDatabase:
     
     # job: store the job_id, source folder, destination bucket and regex

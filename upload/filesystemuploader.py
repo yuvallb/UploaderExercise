@@ -7,6 +7,12 @@ import base64
 from models.task import Task
 from upload.iuploader import IUploader
 
+#
+# implementation of the upload action - for a local filesystem
+#   useful for testing and for mounted targets
+#
+
+
 class FileSystemUploader(IUploader):
     
     def __init__(self, workdir: str):

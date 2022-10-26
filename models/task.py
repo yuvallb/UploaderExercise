@@ -2,6 +2,11 @@ from datetime import datetime
 from enum import IntEnum
 from dataclasses import dataclass
 
+#
+# Model for a single file upload task
+#
+
+
 class TaskStatus(IntEnum):
     PENDING = 1
     IN_PROGRESS = 2

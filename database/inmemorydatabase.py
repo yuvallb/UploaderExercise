@@ -1,10 +1,15 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import  Iterator
+
 from models.job import Job, JobCreation, JobStatus
 from models.task import Task, TaskStatus
-
 from database.idatabase import IDatabase
+
+#
+# implementation of data persistance 
+#   does not support out of process persistance (api restart)
+#
 
 @dataclass
 class JobPersistance:

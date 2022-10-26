@@ -1,18 +1,25 @@
 from dataclasses import dataclass
 from database.idatabase import IDatabase
 from database.inmemorydatabase import InMemoryDatabase
-from models.job import Job, JobCreation
-from scanner import Scanner
-from upload.filesystemuploader import FileSystemUploader
 import logging
 
+from models.job import Job, JobCreation
+from scanner import Scanner
 from upload.iuploader import IUploader
 from upload.s3uploader import S3Uploader
+from upload.filesystemuploader import FileSystemUploader
+
+
+# 
+# Main application logic
+#   uses the scanner, database and uploader classes
+#
+
 
 @dataclass
 class AppConfig:
     dbWorkdir: str = ""
-    targetSetting: str = "" # "s3" for using the s3 uploader or a local folder for using the filesystem uploader
+    targetSetting: str = "" # set "s3" for using the s3 uploader or a local folder for using the filesystem uploader
 
 @dataclass
 class RunJobResult:
@@ -28,7 +35,7 @@ class UploaderApp:
         self._config = config
 
     def startJob(self, job: Job) -> RunJobResult:
-        logging.debug("called startJob with {}".format(job))
+        logging.debug("called startJob with %s",job)
         creation = self._db.startJob(job)
         if creation == JobCreation.EXISTED:
             raise Exception("job already exists")

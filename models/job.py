@@ -1,6 +1,11 @@
 from enum import IntEnum
 from dataclasses import dataclass
 
+#
+# Model for the upload job
+#
+
+
 class JobStatus(IntEnum):
     ACTIVE = 1
     INACTIVE = 2

@@ -6,6 +6,11 @@ import base64
 from models.task import Task
 from upload.iuploader import IUploader
 
+
+#
+# implementation of the upload action - for AWS S3
+#
+
 class S3Uploader(IUploader):
     def __init__(self):
         # assuming the region, access key and secret are configured in the environment
