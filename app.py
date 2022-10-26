@@ -42,8 +42,9 @@ class UploaderApp:
 
         result = RunJobResult()
         scanner = Scanner(self._db)
-        scanner.run(job)
         uploader = self._uploaderFactory()
+        
+        scanner.run(job)
         for task in self._db.yieldPendingTasks(job.job_id):
             result.found += 1
             if uploader.run(task):
@@ -51,6 +52,22 @@ class UploaderApp:
                 self._db.setTaskDone(job.job_id, task.source)
         self._db.finishJob(job.job_id)
         return result
+
+    def startOngoingJob(self, job: Job):
+        logging.debug("called startOngoingJob with %s",job)
+        creation = self._db.startJob(job)
+        if creation == JobCreation.EXISTED:
+            raise Exception("job already exists")
+
+        scanner = Scanner(self._db)
+        uploader = self._uploaderFactory()
+        
+        while True:
+            scanner.run(job)
+            for task in self._db.yieldPendingTasks(job.job_id):
+                if uploader.run(task):
+                    self._db.setTaskDone(job.job_id, task.source)
+
 
     def resumeJobUploads(self, job_id: str):
         job = self._db.getJob(job_id)

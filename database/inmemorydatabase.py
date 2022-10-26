@@ -49,6 +49,11 @@ class InMemoryDatabase(IDatabase):
     # task: store data for each transferred file: source and destination
     # source is the primary key
     def addTask(self, job_id: str, task: Task) -> None:
+        if task.source in self.__db[job_id].tasks:
+            existing = self.__db[job_id].tasks[task.source]
+            if existing.source_size == task.source_size and existing.source_last_modified == task.source_last_modified:
+                # avoid resetting a file that was already transferred
+                return
         self.__db[job_id].tasks[task.source] = task
 
     def yieldPendingTasks(self, job_id: str) -> Iterator[Task]:

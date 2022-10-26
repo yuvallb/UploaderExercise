@@ -22,8 +22,3 @@ class Job:
     regex: str = None
     status: JobStatus = JobStatus.ACTIVE
 
-
-
-#job = Job(job_id="123,",source_basedir="/abc",target_bucket="somebucket")
-#print(job)
-#Job(job_id='123,', source_basedir='/abc', target_bucket='somebucket', regex='.', status=<JobStatus.ACTIVE: 1>)

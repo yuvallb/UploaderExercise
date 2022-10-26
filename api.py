@@ -53,6 +53,18 @@ async def startBackgroundJob(job: JobRequest, background_tasks: BackgroundTasks)
     return {"message": "started background upload id {}".format(job.Upload_id)}
 
 
+# upload files in the background, and continue to monitor for changes, the request will return with 202 response
+@uploader.post("/ongoing-background-job", status_code=202)
+async def startOngoingBackgroundMonitorJob(job: JobRequest, background_tasks: BackgroundTasks):
+    background_tasks.add_task(app.startOngoingJob, Job(
+        job_id=job.Upload_id,
+        source_basedir=job.Source_folder,
+        target_bucket=job.Destination_bucket,   
+        regex=job.Regex
+    ))
+    return {"message": "started ongoing background upload id {}".format(job.Upload_id)}
+
+
 # get upload status
 @uploader.get("/job/{job_id}")
 async def getJob(job_id: str):
