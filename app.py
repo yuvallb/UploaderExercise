@@ -33,6 +33,7 @@ class UploaderApp:
     def __init__(self, config: AppConfig):
         self._db: IDatabase = InMemoryDatabase()
         self._config = config
+        self._stop = False
 
     def startJob(self, job: Job) -> RunJobResult:
         logging.debug("called startJob with %s",job)
@@ -62,7 +63,7 @@ class UploaderApp:
         scanner = Scanner(self._db)
         uploader = self._uploaderFactory()
         
-        while True:
+        while not self._stop:
             scanner.run(job)
             for task in self._db.yieldPendingTasks(job.job_id):
                 if uploader.run(task):
@@ -86,6 +87,8 @@ class UploaderApp:
         for job in self._db.getActiveJobs():
             self.startJob(job)
 
+    def stopTasks(self):
+        self._stop = True
 
     def _uploaderFactory(self) -> IUploader:
         if self._config.targetSetting.lower() == "s3":

@@ -14,7 +14,10 @@ AWS region and user with permissions to upload to the configured bucket defined 
 
 ## Local run 
 
-`DB_WORKDIR="/tmp/db" TARGET_SETTING="s3" uvicorn api:uploader --reload`
+`uvicorn api:uploader --reload`
+
+To test on a local folder target:
+`TARGET_SETTING="/tmp/target" uvicorn api:uploader --reload`
 
 Browse to http://127.0.0.1:8000/docs
 

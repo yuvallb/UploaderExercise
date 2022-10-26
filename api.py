@@ -17,7 +17,7 @@ from models.job import Job
 # external settings recieved from environment variables
 class APISettings(BaseSettings):
     db_workdir: str = ""
-    target_setting: str = ""
+    target_setting: str = "s3"
 
 
 settings = APISettings()
@@ -77,3 +77,7 @@ async def get_upload_information(Upload_id: str):
 @uploader.on_event("startup")
 async def startup_event():
     SingleBackgroundTask(app.recoverJobs)
+
+@uploader.on_event("shutdown")
+async def shutdown_event():
+    app.stopTasks()
