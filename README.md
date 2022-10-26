@@ -46,5 +46,6 @@ Considerations:
 Future:
 * database implementation persistant out of process to allow upload job recovery (current implpementation is in-memory).
 * Multipart upload of a big files
+* Partial file uploads - currently, if a file is modified, the whole file will be uploaded from the beginning.
 * Tests
 * Monitoring
