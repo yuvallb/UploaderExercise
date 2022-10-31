@@ -1,6 +1,6 @@
 # Uploader service 
 
-## Home Assignment for Ultima Genomics
+
 
 ## Requirements
 
